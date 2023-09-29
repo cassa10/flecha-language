@@ -1,7 +1,6 @@
 import ply.lex as ply_lex
 from ply.lex import Lexer as PlyLexer
 
-
 class LexerFlecha:
     tokens = [
         # Identifiers
@@ -41,7 +40,7 @@ class LexerFlecha:
     t_SEMICOLON = r';'
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
-    t_PIPE = r'\|'
+
     t_ARROW = r'->'
     t_LAMBDA = r'(\\)'
     t_AND = r'&&'
@@ -61,6 +60,8 @@ class LexerFlecha:
     t_DIV = r'/'
     t_MOD = r'%'
 
+    t_PIPE = r'\|'
+
     # Must be in the end for no conflicts
     t_DEFEQ = r'='
 
@@ -69,9 +70,20 @@ class LexerFlecha:
         t.value = int(t.value)
         return t
 
+    def t_Comment(self, t):
+        r"""\--.*\n?"""
+        t.lexer.lineno += 1
+
+    def t_ignore_newline(self, t):
+        r"""\n+"""
+        t.lexer.lineno += t.value.count('\n')
+
     def t_error(self, t):
         print(f'Illegal character {t.value[0]!r}')
         t.lexer.skip(1)
 
     def build(self) -> PlyLexer:
         return ply_lex.lex(module=self)
+
+    def get_tokens(self):
+        return self.tokens + list(self.keywords.values())

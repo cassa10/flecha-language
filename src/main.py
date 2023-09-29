@@ -28,12 +28,15 @@ def get_main_args(arg_parser):
 def main(program_input):
     parser = Parser()
     print(parser)
-    print(program_input)
-    # program = "2+1-3+5"
+    #print(program_input)
+    print("lexer=>")
     parser.execute(program_input)
+    print("parser=>")
+    print(f"{parser.parse(program_input)}")
 
 
 if __name__ == "__main__":
-    _argParser = argparse.ArgumentParser()
-    program, tokenize_mode, input_file, output_file = get_main_args(_argParser)
+    #_argParser = argparse.ArgumentParser()
+    #program, tokenize_mode, input_file, output_file = get_main_args(_argParser)
+    program = "1+2"
     main(program)
