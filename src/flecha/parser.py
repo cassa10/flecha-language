@@ -1,6 +1,8 @@
 from ply.yacc import yacc
 
+from flecha.ast.ast_node import Program
 from flecha.lexer import LexerFlecha
+
 
 class Parser:
     tokens = LexerFlecha.tokens
@@ -24,7 +26,7 @@ class Parser:
 
     def p_program_empty(self, p):
         """program :"""
-        p[0] = "[]"
+        p[0] = Program()
 
     def p_program(self, p):
         """program : binaryExpr"""

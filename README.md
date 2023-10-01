@@ -6,12 +6,17 @@
 
 - python v3.11
 - [PLY v3.11](https://github.com/dabeaz/ply)
+- [Pytest v7.4.2](https://pypi.org/project/pytest/)
 - [argparse](https://docs.python.org/3/library/argparse.html)
 
 
 ## Set up
 ```bash
 pip install ply
+```
+
+```bash
+pip install pytest
 ```
 
 ```bash
