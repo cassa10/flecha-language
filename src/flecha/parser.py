@@ -1,6 +1,6 @@
 from ply.yacc import yacc
 
-from flecha.ast.ast_node import Program
+from flecha.ast.program import Program
 from flecha.lexer import LexerFlecha
 
 
