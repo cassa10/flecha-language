@@ -1,8 +1,9 @@
 import json
 from typing import Sequence
-from enum import Enum
 
 # TODO: Move all Json to another class or file??
+from flecha.ast.label import AstLabel
+
 jsonConfig = dict(separators=(',', ':'), default=lambda obj: obj.value)
 
 
@@ -11,11 +12,6 @@ def flecha_json_encode(out):
 
 
 AstNodeOutput = int | str | Sequence['AstNodeOutput']
-
-
-class AstLabel(Enum):
-    Program = ""
-    ExprNumber = "ExprNumber"
 
 
 class AstNode:
@@ -28,7 +24,7 @@ class AstNode:
         self.children.append(child)
         return self
 
-    def _out(self) -> AstNodeOutput:
+    def _out(self):
         return [self.label] + self._children_out()
 
     def _children_out(self):
@@ -56,6 +52,6 @@ class AstNodeList(AstNode):
 
     def _out(self) -> AstNodeOutput:
         if self.children:
-            return self.children
+            return self._children_out()
         else:
             return []

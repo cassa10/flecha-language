@@ -40,5 +40,6 @@ def main(program_input):
 if __name__ == "__main__":
     #_argParser = argparse.ArgumentParser()
     #program, tokenize_mode, input_file, output_file = get_main_args(_argParser)
-    program = "def tres = \\\\1\t\n+2 \n --hola"
+    #program = "def tres = \\\\1\t\n+2 \n --hola"
+    program = "1+2"
     main(program)

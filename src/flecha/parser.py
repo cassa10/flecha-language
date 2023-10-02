@@ -1,6 +1,8 @@
 from ply.yacc import yacc
 
-from flecha.ast.program import Program
+from flecha.ast.builder import create_expression
+from flecha.ast.expression import NumberExpr
+from flecha.ast.program import Program, Def
 from flecha.lexer import Lexer
 
 
@@ -21,8 +23,21 @@ class Parser:
         p[0] = Program()
 
     def p_program(self, p):
-        """program : binaryExpr"""
-        p[0] = f"[{p[1]}]"
+        """program : program definition"""
+        program = p[1]
+        p[0] = program.append(p[2])
+
+    def p_def(self, p):
+        """definition : DEF LOWERID parameters DEFEQ atomicExpr"""
+        p[0] = Def(p[2], create_expression(p[3], p[5]))
+
+    def p_parameters_empty(self, p):
+        """parameters :"""
+        p[0] = []
+
+    def p_parameters(self, p):
+        """parameters :  parameters LOWERID"""
+        p[0] = p[1] + [p[2]]
 
     def p_binaryExpr(self, p):
         """ binaryExpr : atomicExpr AND atomicExpr
@@ -42,7 +57,7 @@ class Parser:
 
     def p_atomicExpr_number(self, p):
         """atomicExpr : NUMBER"""
-        p[0] = p[1]
+        p[0] = NumberExpr(p[1])
 
     def p_error(self, p):
         print(f'Syntax error: {p.value!r} | At line: {p.lineno}')
