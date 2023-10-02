@@ -1,4 +1,6 @@
 import argparse
+
+from flecha.lexer import get_all_tokens, Lexer
 from flecha.parser import Parser
 
 
@@ -29,8 +31,8 @@ def main(program_input):
     parser = Parser()
     print(parser)
     #print(program_input)
-    print("lexer=>")
-    parser.execute(program_input)
+    print("lexer =>")
+    print(get_all_tokens(Lexer().build(), program_input))
     print("parser=>")
     print(f"{parser.parse(program_input)}")
 
@@ -38,5 +40,5 @@ def main(program_input):
 if __name__ == "__main__":
     #_argParser = argparse.ArgumentParser()
     #program, tokenize_mode, input_file, output_file = get_main_args(_argParser)
-    program = "1+2"
+    program = "def tres = \\\\1\t\n+2 \n --hola"
     main(program)

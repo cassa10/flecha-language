@@ -1,7 +1,20 @@
 import ply.lex as ply_lex
 from ply.lex import Lexer as PlyLexer
+import re
 
-class LexerFlecha:
+
+def get_all_tokens(lexer: PlyLexer, program):
+    res = []
+    lexer.input(program)
+    while True:
+        token = lexer.token()
+        if not token:
+            break
+        res.append((token.type, token.value))
+    return res
+
+
+class Lexer:
     tokens = [
         # Identifiers
         'LOWERID', 'UPPERID',
@@ -35,6 +48,8 @@ class LexerFlecha:
         'in': 'IN',
     }
 
+    tokens = tokens + list(keywords.values())
+
     t_ignore = ' \t'
 
     t_SEMICOLON = r';'
@@ -65,12 +80,52 @@ class LexerFlecha:
     # Must be in the end for no conflicts
     t_DEFEQ = r'='
 
+    # escaped chars \n, \t, \r, \, ', "
+    esc_regex = re.compile(r"(?P<esc>\\[ntr\\\'\"])")
+
+    esc_chars = {
+        "\\n": '\n',
+        "\\r": '\r',
+        "\\t": '\t',
+        "\\\\": '\\',
+        '\\"': '"',
+        "\\'": "'"
+    }
+
+    def t_CHAR(self, t):
+        r"""\'(?P<value>(\\[ntr\\\'\"])|[^\\\'])\'"""
+        val = t.lexer.lexmatch.group('value')
+        if val in Lexer.esc_chars:
+            t.value = Lexer.esc_chars[val]
+        else:
+            t.value = val
+        return t
+
+    def t_STRING(self, t):
+        r"""\"(?P<value>((\\[ntr\\\'\"])|[^\\\"])*)\""""
+        string_value = re.sub(
+            Lexer.esc_regex,
+            lambda x: Lexer.esc_chars[x.group('esc')], t.lexer.lexmatch.group('value')
+        )
+        t.value = string_value
+        return t
+
+    def t_LOWERID(self, t):
+        r"""[a-z][_a-zA-Z0-9]*"""
+        t.type = Lexer.keywords.get(t.value, 'LOWERID')
+        return t
+
+    def t_UPPERID(self, t):
+        r"""[A-Z][_a-zA-Z0-9]*"""
+        t.type = Lexer.keywords.get(t.value, 'UPPERID')
+        return t
+
     def t_NUMBER(self, t):
         r"""\d+"""
         t.value = int(t.value)
         return t
 
-    def t_Comment(self, t):
+    def t_comment(self, t):
         r"""\--.*\n?"""
         t.lexer.lineno += 1
 
@@ -84,6 +139,3 @@ class LexerFlecha:
 
     def build(self) -> PlyLexer:
         return ply_lex.lex(module=self)
-
-    def get_tokens(self):
-        return self.tokens + list(self.keywords.values())

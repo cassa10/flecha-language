@@ -8,7 +8,7 @@ parser_tests_loc = "tests_parser*"
 # Add test_name for create new tests of file (if file with desc index exist)
 test_names = [
     'Empty Program',
-    #'Numbers'
+    'Numbers'
 ]
 
 

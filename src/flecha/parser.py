@@ -1,11 +1,11 @@
 from ply.yacc import yacc
 
 from flecha.ast.program import Program
-from flecha.lexer import LexerFlecha
+from flecha.lexer import Lexer
 
 
 class Parser:
-    tokens = LexerFlecha.tokens
+    tokens = Lexer.tokens
 
     precedence = (
         ('left', 'PLUS', 'MINUS'),
@@ -13,16 +13,8 @@ class Parser:
     )
 
     def __init__(self):
-        self.__lexer = LexerFlecha().build()
+        self.__lexer = Lexer().build()
         self.__yacc = yacc(module=self)
-
-    def execute(self, program):
-        self.__lexer.input(program)
-        while True:
-            token = self.__lexer.token()
-            if not token:
-                break
-            print(token)
 
     def p_program_empty(self, p):
         """program :"""
