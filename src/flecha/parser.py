@@ -1,7 +1,6 @@
 from ply.yacc import yacc
 
-from flecha.ast.builder import create_expression
-from flecha.ast.expression import NumberExpr
+from flecha.ast.expression import create_expression, create_atomic
 from flecha.ast.program import Program, Def
 from flecha.lexer import Lexer
 
@@ -55,9 +54,17 @@ class Parser:
                              | atomicExpr MOD atomicExpr"""
         p[0] = f"[{p[1]} {p[2]} {p[3]}]"
 
-    def p_atomicExpr_number(self, p):
-        """atomicExpr : NUMBER"""
-        p[0] = NumberExpr(p[1])
+    def p_atomicExpr(self, p):
+        """atomicExpr : LOWERID
+                        | UPPERID
+                        | NUMBER
+                        | CHAR
+                        | STRING"""
+        p[0] = create_atomic(p.slice[1].type, p[1])
+
+    # def p_atomicExpr_paren(self, p):
+    #     """atomicExpr : LPAREN expression RPAREN"""
+    #     pass
 
     def p_error(self, p):
         print(f'Syntax error: {p.value!r} | At line: {p.lineno}')
