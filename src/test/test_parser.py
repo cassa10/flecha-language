@@ -9,7 +9,8 @@ parser_tests_loc = "tests_parser*"
 test_names = [
     'Empty Program',
     'Numbers',
-    'Variables'
+    'Variables',
+    'Constructores'
 ]
 
 

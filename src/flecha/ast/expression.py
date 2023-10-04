@@ -2,7 +2,7 @@ from flecha.ast.ast_node import AstNode, AstLabel, AstLeaf
 
 atomic_expr = {
     "LOWERID": lambda v: VarExpr(v),
-    "UPPERID": lambda v: VarExpr(v),
+    "UPPERID": lambda v: ExprConstructor(v),
     "NUMBER": lambda v: NumberExpr(v),
     "CHAR": lambda v: CharExpr(v),
     "STRING": lambda v: StringExpr(v),
@@ -31,6 +31,11 @@ class NumberExpr(Expression):
 class VarExpr(Expression):
     def __init__(self, value):
         super().__init__(AstLabel.ExprVar, create_id(value))
+
+
+class ExprConstructor(Expression):
+    def __init__(self, value):
+        super().__init__(AstLabel.ExprConstructor, create_id(value))
 
 
 class CharExpr(Expression):
