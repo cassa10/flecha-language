@@ -10,7 +10,8 @@ test_names = [
     'Empty Program',
     'Numbers',
     'Variables',
-    'Constructores'
+    'Constructores',
+    'Caracteres'
 ]
 
 

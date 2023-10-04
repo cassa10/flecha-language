@@ -40,7 +40,7 @@ class ExprConstructor(Expression):
 
 class CharExpr(Expression):
     def __init__(self, value):
-        pass
+        super().__init__(AstLabel.ExprChar, ord(value))
 
 
 class StringExpr(Expression):
