@@ -51,7 +51,4 @@ class AstNodeList(AstNode):
         super().__init__(label, nodes)
 
     def _out(self) -> AstNodeOutput:
-        if self.children:
-            return self._children_out()
-        else:
-            return []
+        return self._children_out() if self.children else []

@@ -39,19 +39,39 @@ lexer_tests = {
     "Case": ("case", [('CASE', 'case')]),
     "Let": ("let", [('LET', 'let')]),
     "In": ("in", [('IN', 'in')]),
-    "Expr Plus": ("3 + 1",
+    "Expr Plus": (
+        "3 + 1",
         [('NUMBER', 3), ('PLUS', '+'), ('NUMBER', 1)]
     ),
-    "Expr Minus": ("10 - 255",
-       [('NUMBER', 10), ('MINUS', '-'), ('NUMBER', 255)]
+    "Expr Minus": (
+        "10 - 255",
+        [('NUMBER', 10), ('MINUS', '-'), ('NUMBER', 255)]
     ),
-    "Expr Def": ("def uno\t =\n 1 \n\t + \t\n 3\n",
+    "Expr Def": (
+        "def uno\t =\n 1 \n\t + \t\n 3\n",
         [('DEF', 'def'), ('LOWERID', 'uno'), ('DEFEQ', '='), ('NUMBER', 1), ('PLUS', '+'), ('NUMBER', 3)]
-     ),
+    ),
     "Comment between lines": (
         "2 + 3 --Asd def 123+= 2 || \n --Hola \\ \t asd\n 0 + 1",
         [('NUMBER', 2), ('PLUS', '+'), ('NUMBER', 3), ('NUMBER', 0), ('PLUS', '+'), ('NUMBER', 1)]
     ),
+    "Structures List of Numbers": (
+        "def lista123    = Cons 1 (Cons 2 (Cons 3 Nil))",
+        [
+            ('DEF', 'def'), ('LOWERID', 'lista123'), ('DEFEQ', '='), ('UPPERID', 'Cons'), ('NUMBER', 1),
+            ('LPAREN', '('),('UPPERID', 'Cons'), ('NUMBER', 2), ('LPAREN', '('), ('UPPERID', 'Cons'), ('NUMBER', 3),
+            ('UPPERID', 'Nil'), ('RPAREN', ')'), ('RPAREN', ')')
+        ]
+    ),
+    "Structures List of Chars": (
+        "def listaABC    = Cons 'a' (Cons 'b' (Cons 'c' Nil))",
+        [
+            ('DEF', 'def'), ('LOWERID', 'listaABC'), ('DEFEQ', '='), ('UPPERID', 'Cons'),
+            ('CHAR', 'a'), ('LPAREN', '('), ('UPPERID', 'Cons'), ('CHAR', 'b'), ('LPAREN', '('),
+            ('UPPERID', 'Cons'), ('CHAR', 'c'), ('UPPERID', 'Nil'), ('RPAREN', ')'), ('RPAREN', ')')
+        ]
+    ),
+
 }
 
 
