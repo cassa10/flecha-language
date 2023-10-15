@@ -14,3 +14,5 @@ class AstLabel(Enum):
     ExprLambda = "ExprLambda"
     ExprApply = "ExprApply"
     CaseBranch = "CaseBranch"
+    CaseBranches = ""
+    Params = ""

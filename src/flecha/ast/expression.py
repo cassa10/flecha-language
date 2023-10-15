@@ -1,4 +1,4 @@
-from flecha.ast.ast_node import AstNode, AstLabel, AstLeaf
+from flecha.ast.ast_node import AstNode, AstLabel, AstLeaf, AstNodeList
 
 # used for create strings with list structures of chars
 LIST_APPENDER = 'Cons'
@@ -13,14 +13,6 @@ atomic_expr = {
 }
 
 
-class LiteralExpr(AstLeaf):
-    def __init__(self, label: AstLabel, value):
-        super().__init__(label, value)
-
-    def _out(self):
-        return [self.label, self.value]
-
-
 class ApplyExpr(AstNode):
 
     def __init__(self, func, arg):
@@ -31,6 +23,14 @@ class LambdaExpr(AstNode):
     def __init__(self, params, expr):
         super().__init__(AstLabel.ExprLambda, expr)
         self.params = params
+
+
+class LiteralExpr(AstLeaf):
+    def __init__(self, label: AstLabel, value):
+        super().__init__(label, value)
+
+    def _out(self):
+        return [self.label, self.value]
 
 
 class NumberExpr(LiteralExpr):
@@ -61,7 +61,7 @@ def build_expression(params, expression):
     return LambdaExpr(params, build_expression(params[1::], expression))
 
 
-def build_id(value):
+def build_id(value: str):
     return AstLeaf(AstLabel.Id, value)
 
 
