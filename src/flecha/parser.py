@@ -93,10 +93,10 @@ class Parser:
         """elseBranches : ELSE innerExpr"""
         p[0] = build_else(p[2])
 
-
-    # TODO: add binaryExpr | unaryExpr
     def p_inner_expr(self, p):
-        """innerExpr : applyExpr"""
+        """innerExpr : applyExpr
+                     | binaryExpr
+                     | unaryExpr"""
         p[0] = p[1]
 
     def p_apply_expr_base(self, p):
@@ -118,6 +118,40 @@ class Parser:
     def p_atomic_expr_paren(self, p):
         """atomicExpr : LPAREN expression RPAREN"""
         p[0] = p[2]
+
+    def p_binary_expr(self, p):
+        """binaryExpr : innerExpr binaryOp innerExpr"""
+        operator = p[2]
+        left = p[1]
+        right = p[3]
+        p[0] = build_binary_expression(left, operator, right)
+
+    def p_binary_op(self, p):
+        """binaryOp : OR
+                    | AND
+                    | EQ
+                    | NE
+                    | GE
+                    | LE
+                    | GT
+                    | LT
+                    | PLUS
+                    | MINUS
+                    | TIMES
+                    | DIV
+                    | MOD"""
+        p[0] = p[1]
+
+    def p_unary_expr(self, p):
+        """unaryExpr : unaryOp innerExpr"""
+        operator = p[1]
+        right = p[2]
+        p[0] = build_unary_expression(operator, right)
+
+    def p_unary_op(self, p):
+        """unaryOp : NOT
+                    | MINUS"""
+        p[0] = p[1]
 
     def p_error(self, p):
         print(f'Syntax error: {p.value!r} | At line: {p.lineno}')

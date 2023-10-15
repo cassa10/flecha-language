@@ -40,7 +40,7 @@ class AstNode:
 class AstLeaf(AstNode):
     def __init__(self, label: AstLabel, value):
         super().__init__(label, None)
-        self.value = value
+        self.value = "OR" if value == '||' else value
 
     def _out(self) -> AstNodeOutput:
         return self.value

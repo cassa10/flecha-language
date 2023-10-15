@@ -13,6 +13,28 @@ atomic_expr = {
     "STRING": lambda v: build_string(v),
 }
 
+operators = {
+    'binary': {
+        '||': 'OR',
+        '&&': 'AND',
+        '==': 'EQ',
+        '!=': 'NE',
+        '>=': 'GE',
+        '<=': 'LE',
+        '>': 'GT',
+        '<': 'LT',
+        '+': 'ADD',
+        '-': 'SUB',
+        '*': 'MUL',
+        '/': 'DIV',
+        '%': 'MOD'
+    },
+    'unary': {
+        '-': 'UMINUS',
+        '!': 'NOT'
+    }
+}
+
 
 class LetExpr(AstNode):
     def __init__(self, _id: str, expr1, expr2):
@@ -20,7 +42,6 @@ class LetExpr(AstNode):
 
 
 class ApplyExpr(AstNode):
-
     def __init__(self, func, arg):
         super().__init__(AstLabel.ExprApply, [func, arg])
 
@@ -75,6 +96,17 @@ def build_id(value: str):
 
 def build_atomic(_type, value):
     return atomic_expr[_type](value)
+
+
+def build_binary_expression(left, operator, right):
+    op = operators['binary'].get(operator)
+    left_apply = ApplyExpr(VarExpr(op), left)
+    return ApplyExpr(left_apply, right)
+
+
+def build_unary_expression(operator, right):
+    op = operators['unary'].get(operator)
+    return ApplyExpr(VarExpr(op), right)
 
 
 def build_string(string_param: str):
