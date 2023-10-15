@@ -45,6 +45,7 @@ class CaseExpr(AstNode):
     def _out(self):
         return [self.label, self.expr()._out(), self._out_branches()]
 
+# Builders
 
 def build_if(expr, then_expr, else_expr):
     return CaseExpr(expr, CaseBranches([CaseBranch(TRUE_ID, [], then_expr), else_expr]))

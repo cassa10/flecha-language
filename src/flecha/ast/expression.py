@@ -3,6 +3,7 @@ from flecha.ast.ast_node import AstNode, AstLabel, AstLeaf, AstNodeList
 # used for create strings with list structures of chars
 LIST_APPENDER = 'Cons'
 LIST_EMPTY = 'Nil'
+BLANK_VAR = '_'
 
 atomic_expr = {
     "LOWERID": lambda v: VarExpr(v),
@@ -13,6 +14,11 @@ atomic_expr = {
 }
 
 
+class LetExpr(AstNode):
+    def __init__(self, _id: str, expr1, expr2):
+        super().__init__(AstLabel.ExprLet, [build_id(_id), expr1, expr2])
+
+
 class ApplyExpr(AstNode):
 
     def __init__(self, func, arg):
@@ -20,9 +26,8 @@ class ApplyExpr(AstNode):
 
 
 class LambdaExpr(AstNode):
-    def __init__(self, params, expr):
-        super().__init__(AstLabel.ExprLambda, expr)
-        self.params = params
+    def __init__(self, param, expr):
+        super().__init__(AstLabel.ExprLambda, [build_id(param), expr])
 
 
 class LiteralExpr(AstLeaf):
@@ -54,11 +59,14 @@ class CharExpr(LiteralExpr):
 
 
 # Builders
+def build_seq_let(expr1, expr2):
+    return LetExpr(BLANK_VAR, expr1, expr2)
+
 
 def build_expression(params, expression):
     if not params:
         return expression
-    return LambdaExpr(params, build_expression(params[1::], expression))
+    return LambdaExpr(params[0], build_expression(params[1::], expression))
 
 
 def build_id(value: str):

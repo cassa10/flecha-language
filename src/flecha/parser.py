@@ -39,17 +39,31 @@ class Parser:
         """parameters : parameters LOWERID"""
         p[0] = p[1] + [p[2]]
 
-    # TODO: add sequenceExpr
     def p_expression(self, p):
-        """expression : outerExpr"""
+        """expression :  outerExpr
+                       | sequenceExpr"""
         p[0] = p[1]
 
-    # TODO: add letExpr | lambdaExpr
+    def p_sequence_expr(self, p):
+        """sequenceExpr : outerExpr SEMICOLON expression"""
+        p[0] = build_seq_let(p[1], p[3])
+
+
     def p_outer_expr(self, p):
         """outerExpr :  ifExpr
+                      | letExpr
+                      | lambdaExpr
                       | caseExpr
                       | innerExpr"""
         p[0] = p[1]
+
+    def p_let_expr(self, p):
+        """letExpr : LET LOWERID parameters DEFEQ innerExpr IN outerExpr"""
+        p[0] = LetExpr(p[2], build_expression(p[3], p[5]), p[7])
+
+    def p_lambda_expr(self, p):
+        """lambdaExpr : LAMBDA parameters ARROW outerExpr"""
+        p[0] = build_expression(p[2], p[4])
 
     def p_case_expr(self, p):
         """caseExpr : CASE innerExpr caseBranches"""
