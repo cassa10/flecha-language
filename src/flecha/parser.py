@@ -10,8 +10,12 @@ class Parser:
     tokens = Lexer.tokens
 
     precedence = (
+        ('left', 'OR'),
+        ('left', 'AND'),
+        ('nonassoc', 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE'),
         ('left', 'PLUS', 'MINUS'),
-        ('left', 'TIMES', 'DIV', 'MOD')
+        ('left', 'TIMES', 'DIV', 'MOD'),
+        ('right', 'UMINUS', 'NOT')
     )
 
     def __init__(self):
@@ -120,38 +124,31 @@ class Parser:
         p[0] = p[2]
 
     def p_binary_expr(self, p):
-        """binaryExpr : innerExpr binaryOp innerExpr"""
+        """binaryExpr : innerExpr OR innerExpr
+                    | innerExpr AND innerExpr
+                    | innerExpr EQ innerExpr
+                    | innerExpr NE innerExpr
+                    | innerExpr GE innerExpr
+                    | innerExpr LE innerExpr
+                    | innerExpr GT innerExpr
+                    | innerExpr LT innerExpr
+                    | innerExpr PLUS innerExpr
+                    | innerExpr MINUS innerExpr
+                    | innerExpr TIMES innerExpr
+                    | innerExpr DIV innerExpr
+                    | innerExpr MOD innerExpr"""
         operator = p[2]
         left = p[1]
         right = p[3]
         p[0] = build_binary_expression(left, operator, right)
 
-    def p_binary_op(self, p):
-        """binaryOp : OR
-                    | AND
-                    | EQ
-                    | NE
-                    | GE
-                    | LE
-                    | GT
-                    | LT
-                    | PLUS
-                    | MINUS
-                    | TIMES
-                    | DIV
-                    | MOD"""
-        p[0] = p[1]
-
     def p_unary_expr(self, p):
-        """unaryExpr : unaryOp innerExpr"""
+        """unaryExpr : MINUS innerExpr %prec UMINUS
+                     | NOT innerExpr"""
+        # La primera regla es para eliminar la ambigüedad, asi ply aplica la precedencia de UMINUS y no MINUS
         operator = p[1]
         right = p[2]
         p[0] = build_unary_expression(operator, right)
-
-    def p_unary_op(self, p):
-        """unaryOp : NOT
-                    | MINUS"""
-        p[0] = p[1]
 
     def p_error(self, p):
         print(f'Syntax error: {p.value!r} | At line: {p.lineno}')

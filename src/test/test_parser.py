@@ -22,7 +22,7 @@ test_names = [
     'Sequencing',
     'Control Structure Nesting',
     'Operators',
-    # 'Associativity',
+    'Associativity',
     # 'Operators/Apply Nesting',
     # 'Precedence',
     # 'Some program',
