@@ -12,10 +12,12 @@ class Parser:
     precedence = (
         ('left', 'OR'),
         ('left', 'AND'),
+        ('right', 'NOT'),
         ('nonassoc', 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE'),
         ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES'),
         ('left', 'TIMES', 'DIV', 'MOD'),
-        ('right', 'UMINUS', 'NOT')
+        ('right', 'UMINUS')
     )
 
     def __init__(self):

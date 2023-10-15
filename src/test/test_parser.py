@@ -23,9 +23,9 @@ test_names = [
     'Control Structure Nesting',
     'Operators',
     'Associativity',
-    # 'Operators/Apply Nesting',
-    # 'Precedence',
-    # 'Some program',
+    'Operators/Apply Nesting',
+    'Precedence',
+    'Some program',
 ]
 
 
