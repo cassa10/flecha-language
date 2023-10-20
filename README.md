@@ -10,29 +10,37 @@
 - [argparse](https://docs.python.org/3/library/argparse.html)
 
 
-## Set up
-```bash
-pip install ply
-```
+## Set up 
 
+### From requirement.txt file
 ```bash
-pip install pytest
-```
-
-```bash
-pip install argparse
+pip install -r requirements.txt
 ```
 
 ## Execute
 
-Help command
+### Help command
 ```bash
 py ./src/main.py -h
 ```
 
 
+### Example with flag "-s" or "--stringProgram"
 ```bash
 py ./src/main.py -s 12+234
 ```
 
-TODO Complete when finish!!
+### Example with flag "-i" or "--inputFile"
+```bash
+py ./src/main.py -i test/tests_parser_json/test18.input
+```
+
+### Show tokens with flags "-t" or "--tokenize"
+```bash
+py ./src/main.py -t -i test/tests_parser_json/test18.input
+```
+
+### Enable debug info (such as: Program Input)
+```bash
+py ./src/main.py -d -t -i test/tests_parser_json/test18.input
+```

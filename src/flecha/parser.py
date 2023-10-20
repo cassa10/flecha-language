@@ -155,9 +155,12 @@ class Parser:
     def p_error(self, p):
         print(f'Syntax error: {p.value!r} | At line: {p.lineno}')
 
-    def parse(self, input):
-        output = self.__yacc.parse(input, lexer=self.__lexer)
-        return output
+    def parse(self, input_program):
+        output_program = self.__yacc.parse(input_program, lexer=self.__lexer)
+        return output_program
 
     def __str__(self):
         return 'Welcome to Flecha (=>) Language :D\n'
+
+    def greet(self):
+        print(self)
