@@ -1,6 +1,14 @@
 # Trabajo Práctico Parseo y Generación de Código
 
-[Enunciado TP1](./docs/tp1.pdf)
+- [Enunciado TP1](./docs/tp1.pdf)
+
+- [Enunciado TP2](./docs/tp2.pdf)
+
+Los tests se encuentran en la carpeta "./src/test":
+
+- Tests TP1 en la carpeta "tests_parser_json".
+
+- Tests TP2 en la carpeta "tests_interpreter".
 
 ## Pre-requirements
 
@@ -51,7 +59,6 @@ py -m pytest -v
 py ./src/main.py -h
 ```
 
-
 ### Example with flag "-s" or "--stringProgram"
 ```bash
 py ./src/main.py -s 12+234
@@ -67,7 +74,12 @@ py ./src/main.py -i test/tests_parser_json/test18.input
 py ./src/main.py -t -i test/tests_parser_json/test18.input
 ```
 
+### Enable parser AST with flags "-p" or "--parse" 
+```bash
+py ./src/main.py -p -i test/tests_parser_json/test18.input
+```
+
 ### Enable debug info (such as: Program Input) with flags "-d" or "--debug" 
 ```bash
-py ./src/main.py -d -t -i test/tests_parser_json/test18.input
+py ./src/main.py -d -p -t -i test/tests_parser_json/test18.input
 ```

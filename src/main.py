@@ -1,55 +1,11 @@
 import argparse
 import os
-import logger
 
+import logger
+from config import Config
+from flecha.interpreter.interpreter import Interpreter
 from flecha.lexer import get_all_tokens, Lexer
 from flecha.parser import Parser
-
-
-def get_or_default(atr, default):
-    atr_striped = atr.strip() if issubclass(type(atr), str) else atr
-    if atr_striped in (None, ''):
-        return default
-    return atr
-
-
-def get_main_args(arg_parser):
-    # Inputs and outputs
-    arg_parser.add_argument("-s", "--stringProgram", help="some valid string program")
-    arg_parser.add_argument("-i", "--inputFile", help="path to input file with program")
-
-    # TODO: generate output file
-    #  argParser.add_argument("-o", "--outputFile", help="path to object output file")
-
-    # Mode Tokenizer
-    arg_parser.add_argument("-t", "--tokenize", action='store_true', help="Mode tokenize program input")
-
-    # Debug
-    arg_parser.add_argument("-d", "--debug", action='store_true',
-                            help="Mode debug for watch program input and some debugging info")
-
-    args = arg_parser.parse_args()
-
-    if args.debug:
-        print(f"Arguments: {args}")
-
-    return (get_or_default(args.stringProgram, ''), args.tokenize, args.debug,
-            get_or_default(args.inputFile, ''), get_or_default(args.stringProgram, ''))
-
-
-def show_tokenize(_program_input, _show=False):
-    if _show:
-        print("[ Lexer Tokens ] => ")
-        print(get_all_tokens(Lexer().build(), _program_input))
-        print("\n")
-
-
-def show_program_input(_program_input, _show=False):
-    is_empty_program = _program_input == ""
-    if _show or is_empty_program:
-        logger.print("[ Program Input ] => ")
-        logger.print(_program_input) if not is_empty_program else logger.warn('Empty program!!\n')
-        logger.print("[ END Program Input]\n")
 
 
 def read_input_file_or_default(filename: str, program_input_default: str) -> str:
@@ -63,26 +19,50 @@ def read_input_file_or_default(filename: str, program_input_default: str) -> str
         return program_input_default
 
 
+def show_tokenize(_program_input, _show=False):
+    if _show:
+        logger.print("[ Lexer Tokens ] => \n")
+        logger.print(get_all_tokens(Lexer().build(), _program_input))
+        logger.print("\n[ END Lexer Tokens ]\n")
+
+
+def show_program_input(_program_input, _show=False):
+    is_empty_program = _program_input == ""
+    if _show or is_empty_program:
+        logger.print("[ Program Input ] => \n")
+        logger.print(_program_input) if not is_empty_program else logger.warn('Empty program!!')
+        logger.print("\n[ END Program Input]\n")
+
+
+def show_parser_ast(_ast, _show=False):
+    if _show:
+        logger.print("[ AST Parsed ] => ")
+        logger.print(f"{_ast}")
+        logger.print("\n[ END AST Parsed ]\n")
+
+
 if __name__ == "__main__":
+
+    # Init parser
     parser = Parser()
     parser.greet()
 
-    # Get program arguments
-    program_input, tokenize_mode, debug_mode, input_file, output_file = get_main_args(argparse.ArgumentParser())
+    # Get config (or arguments)
+    config = Config(argparse.ArgumentParser())
 
     # Logger
-    logger = logger.Logger(debug_mode)
+    logger = logger.Logger(config.debug_mode)
 
-
-    # override program_input with input_file if exists file
-    program_input = read_input_file_or_default(input_file, program_input)
+    # Override program_input with input_file if exists file
+    program_input = read_input_file_or_default(config.program_from_file, config.program_from_str)
 
     # Optionals
-    show_program_input(program_input, debug_mode)
-    show_tokenize(program_input, tokenize_mode)
+    show_program_input(program_input, config.debug_mode)
+    show_tokenize(program_input, config.tokenize_mode)
 
-    # program = "def tres = \\\\1\t\n+2 \n --hola"
-    # program = "def t1=a||b||c||d"
     program_ast = parser.parse(program_input)
-    print("[ AST ] => ")
-    print(f"{program_ast}")
+    # TODO: when eval is done, then change "True" to "config.parser_mode "
+    show_parser_ast(program_ast, config.parser_mode)
+
+    interpreter = Interpreter()
+    interpreter.eval(program_ast)
