@@ -17,6 +17,12 @@
 pip install -r requirements.txt
 ```
 
+# Tests
+
+```bash
+py -m pytest -v
+```
+
 ## Execute
 
 ### Help command
