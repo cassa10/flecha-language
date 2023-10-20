@@ -38,4 +38,4 @@ def tests_parse_from_files(n: str, desc: str):
 
 
 def __get_test_from_file_number(number: str):
-    return get_test_from_file(parser_tests_loc, number)
+    return get_test_from_file(parser_tests_loc, number, file_extension='input', json_format=True)

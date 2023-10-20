@@ -3,7 +3,7 @@ import os
 
 import logger
 from config import Config
-from flecha.interpreter.interpreter import Interpreter
+from flecha.interpreter.package import Interpreter
 from flecha.lexer import get_all_tokens, Lexer
 from flecha.parser import Parser
 
