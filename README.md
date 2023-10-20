@@ -46,7 +46,7 @@ py ./src/main.py -i test/tests_parser_json/test18.input
 py ./src/main.py -t -i test/tests_parser_json/test18.input
 ```
 
-### Enable debug info (such as: Program Input)
+### Enable debug info (such as: Program Input) with flags "-d" or "--debug" 
 ```bash
 py ./src/main.py -d -t -i test/tests_parser_json/test18.input
 ```
