@@ -2,17 +2,38 @@
 
 [Enunciado TP1](./docs/tp1.pdf)
 
-## Pre-requisitos
+## Pre-requirements
 
 - python v3.11
 - [PLY v3.11](https://github.com/dabeaz/ply)
 - [Pytest v7.4.2](https://pypi.org/project/pytest/)
 - [argparse](https://docs.python.org/3/library/argparse.html)
 
+Note: If "py" not works use "python3" / "python".
+
+## Docker
+
+1) Go to repository root folder
+2) Build image from Dockerfile with:
+
+    ```bash
+    docker build -t flecha .
+    ```
+
+3) Execute image as container with:
+
+    ```bash
+    docker run -it --entrypoint bash --name flecha flecha
+    ```
+
+4) Use commands in [Tests](#tests) or [Execute](#execute) sections (you might need to replace command "py" with "python3")
+
 
 ## Set up 
 
+
 ### From requirement.txt file
+
 ```bash
 pip install -r requirements.txt
 ```
