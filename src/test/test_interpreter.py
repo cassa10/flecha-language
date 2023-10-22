@@ -1,8 +1,9 @@
 import pytest
-
 from flecha.parser import Parser
 from flecha.interpreter.package import Interpreter
 from test.util_test import get_test_from_file
+from io import StringIO
+import sys
 
 interpreter_tests_loc = "tests_interpreter*"
 
@@ -19,8 +20,20 @@ def tests_parse_from_files(n: str, desc: str):
     p = Parser()
     i = Interpreter()
     program_input, expected_out = __get_test_from_file_number(n)
+
+    # Redirigir la salida
+    original_stdout = sys.stdout
+    sys.stdout = buffer = StringIO()
+
     program_ast = p.parse(program_input)
-    assert i.eval(program_ast) == expected_out
+    i.eval(program_ast)
+
+    # Restaurar la salida estándar original
+    sys.stdout = original_stdout
+
+    # Verificar la salida
+    printed_content = buffer.getvalue()
+    assert printed_content == expected_out
 
 
 def __get_test_from_file_number(number: str):
