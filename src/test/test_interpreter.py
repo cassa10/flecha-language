@@ -16,7 +16,7 @@ test_names = [
 
 # use zfill for add 2 chars min padding of 0's at begin of number (eg: 0 -> 00, 1 -> 01, 12 -> 12)
 @pytest.mark.parametrize('n, desc', [(f"{i+1}".zfill(2), e) for i, e in enumerate(test_names)])
-def tests_parse_from_files(n: str, desc: str):
+def tests_parse_and_evaluate_from_files(n: str, desc: str):
     p = Parser()
     i = Interpreter()
     program_input, expected_out = __get_test_from_file_number(n)

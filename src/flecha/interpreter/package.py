@@ -5,4 +5,3 @@ class Interpreter:
 
     def eval(self, ast: AstNode):
         print('A', end='')
-        return ast
