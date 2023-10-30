@@ -2,7 +2,7 @@ import glob
 import json
 import os
 
-from flecha.ast.ast_node import jsonConfig
+from flecha.ast_impl.ast_node import jsonConfig
 
 
 def get_input(filename):

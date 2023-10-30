@@ -2,7 +2,7 @@ import json
 from typing import Sequence
 
 # TODO: Move all Json to another class or file??
-from flecha.ast.label import AstLabel
+from flecha.ast_impl.label import AstLabel
 
 jsonConfig = dict(separators=(',', ':'), default=lambda obj: obj.value)
 

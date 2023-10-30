@@ -1,4 +1,4 @@
-from flecha.ast.ast_node import AstNode, AstLabel, AstLeaf, AstNodeList
+from flecha.ast_impl.ast_node import AstNode, AstLabel, AstLeaf, AstNodeList
 
 # used for create strings with list structures of chars
 LIST_APPENDER = 'Cons'

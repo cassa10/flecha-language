@@ -1,8 +1,8 @@
 from typing import Sequence
 
-from flecha.ast.ast_node import AstNodeList, AstNode
-from flecha.ast.expression import build_id
-from flecha.ast.label import AstLabel
+from flecha.ast_impl.ast_node import AstNodeList, AstNode
+from flecha.ast_impl.expression import build_id
+from flecha.ast_impl.label import AstLabel
 
 TRUE_ID = 'True'
 FALSE_ID = 'False'

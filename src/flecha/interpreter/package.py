@@ -1,4 +1,4 @@
-from flecha.ast.ast_node import AstNode
+from flecha.ast_impl.ast_node import AstNode
 
 
 class Interpreter:

@@ -1,5 +1,5 @@
-from flecha.ast.ast_node import AstNodeList, AstLabel, AstNode
-from flecha.ast.expression import build_id
+from flecha.ast_impl.ast_node import AstNodeList, AstLabel, AstNode
+from flecha.ast_impl.expression import build_id
 
 
 class Program(AstNodeList):

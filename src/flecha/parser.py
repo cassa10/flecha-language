@@ -1,8 +1,8 @@
 from ply.yacc import yacc
 
-from flecha.ast.case_expr import *
-from flecha.ast.expression import *
-from flecha.ast.program import Program, Def
+from flecha.ast_impl.case_expr import *
+from flecha.ast_impl.expression import *
+from flecha.ast_impl.program import Program, Def
 from flecha.lexer import Lexer
 
 
