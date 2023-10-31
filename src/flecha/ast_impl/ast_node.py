@@ -17,6 +17,7 @@ AstNodeOutput = int | str | Sequence['AstNodeOutput']
 class AstNode:
 
     def __init__(self, label: AstLabel, children):
+        self.value = None
         self.label = label
         self.children: list['AstNode'] = children
 

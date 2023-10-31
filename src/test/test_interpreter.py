@@ -11,6 +11,7 @@ interpreter_tests_loc = "tests_interpreter*"
 test_names = [
     'Print Char',
     'Print Number',
+    'Print Number-From-Def',
 ]
 
 
