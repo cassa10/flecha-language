@@ -6,21 +6,25 @@ class Types(Enum):
     Int = "Int"
     Struct = "Struct"
     Closure = "Closure"
-
+    Void = "Void"
 
 
 class Value:
-    pass
+    def __init__(self, _type):
+        self.type = _type.value
+
+    def is_closure(self):
+        return False
 
 
 class VoidValue(Value):
-    # eg: unsafePrintInt('2')
-    pass
+    def __init__(self):
+        super().__init__(Types.Void)
 
 
 class LiteralValue(Value):
     def __init__(self, _type: Types, v):
-        self.type = _type.value
+        super().__init__(_type)
         self.value = v
 
     def __repr__(self):
@@ -36,3 +40,16 @@ class IntValue(LiteralValue):
     def __init__(self, value):
         super().__init__(Types.Int, value)
 
+
+class ClosureValue(Value):
+    def __init__(self, param, body, env):
+        super().__init__(Types.Closure)
+        self.param = param
+        self.body = body
+        self.env = env
+
+    def extend_env(self, param, arg):
+        return self.env.extend(param, arg)
+
+    def is_closure(self):
+        return True

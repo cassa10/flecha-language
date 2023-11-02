@@ -12,6 +12,14 @@ test_names = [
     'Print Char',
     'Print Number',
     'Print Number-From-Def',
+    'Print from Let',
+    'Print Hola Mundo',
+    'Print numbers with lets',
+    'Print secuence',
+    'Print int lambda',
+    'Print lambdas',
+    'Print 42',
+    'Test General functions'
 ]
 
 

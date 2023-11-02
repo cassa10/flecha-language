@@ -40,6 +40,15 @@ class LetExpr(AstNode):
     def __init__(self, _id: str, expr1, expr2):
         super().__init__(AstLabel.ExprLet, [build_id(_id), expr1, expr2])
 
+    def param(self):
+        return self.children[0].value
+
+    def arg(self):
+        return self.children[1]
+
+    def expr_in(self):
+        return self.children[2]
+
 
 class ApplyExpr(AstNode):
     def __init__(self, func, arg):
@@ -55,6 +64,12 @@ class ApplyExpr(AstNode):
 class LambdaExpr(AstNode):
     def __init__(self, param, expr):
         super().__init__(AstLabel.ExprLambda, [build_id(param), expr])
+
+    def param(self):
+        return self.children[0].value
+
+    def expr(self):
+        return self.children[1]
 
 
 class LiteralExpr(AstLeaf):
@@ -75,7 +90,8 @@ class VarExpr(LiteralExpr):
         super().__init__(AstLabel.ExprVar, build_id(value))
 
     def id(self):
-        return self.value
+        return self.value.value
+
 
 class ConstructorExpr(LiteralExpr):
     def __init__(self, value):

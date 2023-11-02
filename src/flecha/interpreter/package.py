@@ -16,6 +16,7 @@ class GlobalEnvironment:
 
     def extend(self, _id, val):
         self.globals[_id] = val
+        return self
 
     def lookup(self, _id):
         try:
@@ -26,11 +27,13 @@ class GlobalEnvironment:
 
 class LocalEnvironment:
 
-    def __init__(self):
-        self.stack_frame = []
+    def __init__(self, stack_frame=None):
+        if stack_frame is None:
+            stack_frame = []
+        self.stack_frame = stack_frame
 
     def extend(self, _id, val):
-        self.stack_frame = [(_id, val)] + self.stack_frame
+        return LocalEnvironment([(_id, val)] + self.stack_frame)
 
     def lookup(self, _id1):
         return next((val for _id2, val in self.stack_frame if _id2 == _id1), None)
@@ -47,6 +50,8 @@ class Interpreter:
             AstLabel.ExprVar: self.eval_var,
             AstLabel.ExprChar: self.eval_char,
             AstLabel.ExprNumber: self.eval_number,
+            AstLabel.ExprLet: self.eval_let,
+            AstLabel.ExprLambda: self.eval_lambda,
         }
 
         self.eval_unary = {
@@ -56,10 +61,15 @@ class Interpreter:
             UNARY_MINUS: self.eval_uminus,
         }
 
+        self.eval_binary = {
+
+        }
+
     def eval(self, ast: AstNode, env=LocalEnvironment()):
         try:
+            # noinspection PyArgumentList
             return self.eval_mapper[ast.label](ast, env)
-        except:
+        except KeyError:
             raise RuntimeError(f'Eval Error: invalid ast {ast}')
 
     def eval_program(self, ast, env):
@@ -73,24 +83,43 @@ class Interpreter:
 
     def eval_apply(self, ast, env):
         func = ast.func()
-        unary_op = func.id().value
-        return self.eval_unary[unary_op](ast.arg(), env)
+        if func.label == AstLabel.ExprVar and func.id() in self.eval_unary:
+            return self.eval_unary[func.id()](ast.arg(), env)
+
+        arg = self.eval(ast.arg(), env)
+        closure = self.eval_closure(func, env)
+        return self.eval(closure.body, closure.extend_env(closure.param, arg))
+
+    def eval_closure(self, ast, env):
+        val = self.eval(ast, env)
+        if not val.is_closure():
+            raise RuntimeError(f'Eval Error: {val} is not closure')
+        return val
+
+    def eval_unary(self, ast, env):
+        func = ast.func()
+        operation = func.id()
+        return self.eval_unary[operation](ast.arg(), env)
+
+    def eval_binary(self, ast, env):
+        pass
 
     def eval_var(self, ast, env):
         return self.find_in_envs(ast.id(), env)
 
-    def eval_char(self, ast):
+    def eval_char(self, ast, _):
         return CharValue(ast.value)
 
-    def eval_number(self, ast):
+    def eval_number(self, ast, _):
         return IntValue(ast.value)
 
-    def eval_print_int(self, ast, _):
-        self.print(self.eval_number(ast))
+    def eval_print_int(self, ast, env):
+        number = self.eval(ast, env)
+        self.print(self.eval_number(number, env))
         return VoidValue()
 
-    def eval_print_char(self, ast, _):
-        self.print(self.eval_char(ast))
+    def eval_print_char(self, ast, env):
+        self.print(self.eval_char(ast, env))
         return VoidValue()
 
     def eval_not(self, ast, env):
@@ -98,6 +127,13 @@ class Interpreter:
 
     def eval_uminus(self, ast, env):
         pass
+
+    def eval_let(self, ast, env):
+        let_val = self.eval(ast.arg(), env)
+        return self.eval(ast.expr_in(), env.extend(ast.param(), let_val))
+
+    def eval_lambda(self, ast, env):
+        return ClosureValue(ast.param(), ast.expr(), env)
 
     def print(self, value):
         print(value, end='')
