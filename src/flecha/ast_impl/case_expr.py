@@ -10,11 +10,16 @@ FALSE_ID = 'False'
 
 class CaseBranch(AstNode):
     def __init__(self, _id: str, _params: Sequence[str], expr):
-        self.id = build_id(_id)
-        self.params = [build_id(param) for param in _params]
-        self.expr = expr
-        super().__init__(AstLabel.CaseBranch, [self.id, Params(self.params), self.expr])
+        super().__init__(AstLabel.CaseBranch, [build_id(_id), Params([build_id(param) for param in _params]), expr])
 
+    def id(self):
+        return self.children[0].value
+
+    def params(self):
+        return [param.value for param in self.children[1].children]
+
+    def expr(self):
+        return self.children[2]
 
 class Params(AstNodeList):
     def __init__(self, params):

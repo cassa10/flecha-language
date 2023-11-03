@@ -1,4 +1,4 @@
-from flecha.ast_impl.ast_node import AstNode, AstLabel, AstLeaf, AstNodeList
+from flecha.ast_impl.ast_node import AstNode, AstLabel, AstLeaf
 
 # used for create strings with list structures of chars
 LIST_APPENDER = 'Cons'
@@ -13,25 +13,45 @@ atomic_expr = {
     "STRING": lambda v: build_string(v),
 }
 
+OP_UNARY = 'unary'
+OP_BINARY = 'binary'
+
+UNARY_NOT = '!'
+UNARY_MINUS = '-'
+
+BINARY_OR = '||'
+BINARY_AND = '&&'
+BINARY_EQ = '=='
+BINARY_NE = '!='
+BINARY_GE = '>='
+BINARY_LE = '<='
+BINARY_GT = '>'
+BINARY_LT = '<'
+BINARY_ADD = '+'
+BINARY_SUB = '-'
+BINARY_MUL = '*'
+BINARY_DIV = '/'
+BINARY_MOD = '%'
+
 operators = {
-    'binary': {
-        '||': 'OR',
-        '&&': 'AND',
-        '==': 'EQ',
-        '!=': 'NE',
-        '>=': 'GE',
-        '<=': 'LE',
-        '>': 'GT',
-        '<': 'LT',
-        '+': 'ADD',
-        '-': 'SUB',
-        '*': 'MUL',
-        '/': 'DIV',
-        '%': 'MOD'
+    OP_BINARY: {
+        BINARY_OR: 'OR',
+        BINARY_AND: 'AND',
+        BINARY_EQ: 'EQ',
+        BINARY_NE: 'NE',
+        BINARY_GE: 'GE',
+        BINARY_LE: 'LE',
+        BINARY_GT: 'GT',
+        BINARY_LT: 'LT',
+        BINARY_ADD: 'ADD',
+        BINARY_SUB: 'SUB',
+        BINARY_MUL: 'MUL',
+        BINARY_DIV: 'DIV',
+        BINARY_MOD: 'MOD'
     },
-    'unary': {
-        '-': 'UMINUS',
-        '!': 'NOT'
+    OP_UNARY: {
+        UNARY_MINUS: 'UMINUS',
+        UNARY_NOT: 'NOT'
     }
 }
 
@@ -97,6 +117,9 @@ class ConstructorExpr(LiteralExpr):
     def __init__(self, value):
         super().__init__(AstLabel.ExprConstructor, build_id(value))
 
+    def id(self):
+        return self.value.value
+
 
 class CharExpr(LiteralExpr):
     def __init__(self, value):
@@ -123,13 +146,13 @@ def build_atomic(_type, value):
 
 
 def build_binary_expression(left, operator, right):
-    op = operators['binary'].get(operator)
+    op = operators[OP_BINARY].get(operator)
     left_apply = ApplyExpr(VarExpr(op), left)
     return ApplyExpr(left_apply, right)
 
 
 def build_unary_expression(operator, right):
-    op = operators['unary'].get(operator)
+    op = operators[OP_UNARY].get(operator)
     return ApplyExpr(VarExpr(op), right)
 
 

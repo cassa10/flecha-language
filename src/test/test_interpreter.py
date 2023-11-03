@@ -19,7 +19,12 @@ test_names = [
     'Print int lambda',
     'Print lambdas',
     'Print 42',
-    'Test General functions'
+    'Test General functions',
+    'Test Case',
+    'Test Bools',
+    'Test Prints',
+    'Test Cases 2',
+
 ]
 
 
@@ -44,6 +49,32 @@ def tests_parse_and_evaluate_from_files(n: str, desc: str):
     printed_content = buffer.getvalue()
     assert printed_content == expected_out
 
+
+'''
+def test_parse_an_evaluate_only_with_n():
+    """
+    Only for debug an only test - for change file number change 'n' value
+    :return:
+    """
+    n = 12
+    p = Parser()
+    i = Interpreter()
+    program_input, expected_out = __get_test_from_file_number(n)
+
+    # Redirigir la salida
+    original_stdout = sys.stdout
+    sys.stdout = buffer = StringIO()
+
+    program_ast = p.parse(program_input)
+    i.eval(program_ast)
+
+    # Restaurar la salida estándar original
+    sys.stdout = original_stdout
+
+    # Verificar la salida
+    printed_content = buffer.getvalue()
+    assert printed_content == expected_out
+'''
 
 def __get_test_from_file_number(number: str):
     return get_test_from_file(interpreter_tests_loc, number, file_extension='fl', json_format=False)

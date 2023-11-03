@@ -1,42 +1,11 @@
-from flecha.ast_impl.ast_node import AstNode
+from flecha.ast_impl.expression import *
 from flecha.ast_impl.label import AstLabel
+from flecha.interpreter.environment import *
 from flecha.interpreter.values import *
 
-MAIN_DEF = 'main'
 
-UNSAFE_PRINT_INT = 'unsafePrintInt'
-UNSAFE_PRINT_CHAR = 'unsafePrintChar'
-UNARY_NOT = '!'
-UNARY_MINUS = '-'
-
-
-class GlobalEnvironment:
-    def __init__(self):
-        self.globals = {}
-
-    def extend(self, _id, val):
-        self.globals[_id] = val
-        return self
-
-    def lookup(self, _id):
-        try:
-            return self.globals[_id]
-        except:
-            raise RuntimeError(f'Id {_id} not defined')
-
-
-class LocalEnvironment:
-
-    def __init__(self, stack_frame=None):
-        if stack_frame is None:
-            stack_frame = []
-        self.stack_frame = stack_frame
-
-    def extend(self, _id, val):
-        return LocalEnvironment([(_id, val)] + self.stack_frame)
-
-    def lookup(self, _id1):
-        return next((val for _id2, val in self.stack_frame if _id2 == _id1), None)
+def type_runtime_exception(_type, val):
+    return RuntimeError(f'Eval Error | {val} is not {_type.value}')
 
 
 class Interpreter:
@@ -52,6 +21,8 @@ class Interpreter:
             AstLabel.ExprNumber: self.eval_number,
             AstLabel.ExprLet: self.eval_let,
             AstLabel.ExprLambda: self.eval_lambda,
+            AstLabel.ExprConstructor: self.eval_constructor,
+            AstLabel.ExprCase: self.eval_case,
         }
 
         self.eval_unary = {
@@ -61,9 +32,28 @@ class Interpreter:
             UNARY_MINUS: self.eval_uminus,
         }
 
-        self.eval_binary = {
-
+        self.eval_binary_bool = {
+            BINARY_EQ: lambda x, y: x == y,
+            BINARY_NE: lambda x, y: x != y,
+            BINARY_GE: lambda x, y: x >= y,
+            BINARY_LE: lambda x, y: x <= y,
+            BINARY_GT: lambda x, y: x > y,
+            BINARY_LT: lambda x, y: x < y,
         }
+
+        self.eval_binary_arithmetic = {
+            BINARY_ADD: lambda x, y: x + y,
+            BINARY_SUB: lambda x, y: x - y,
+            BINARY_MUL: lambda x, y: x * y,
+            BINARY_DIV: lambda x, y: x / y,
+            BINARY_MOD: lambda x, y: x % y,
+        }
+
+        self.eval_binary_logical = {
+            BINARY_OR: lambda x, y: self.eval_or,
+            BINARY_AND: lambda x, y: self.eval_and,
+        }
+
 
     def eval(self, ast: AstNode, env=LocalEnvironment()):
         try:
@@ -83,17 +73,40 @@ class Interpreter:
 
     def eval_apply(self, ast, env):
         func = ast.func()
+        arg = ast.arg()
         if func.label == AstLabel.ExprVar and func.id() in self.eval_unary:
-            return self.eval_unary[func.id()](ast.arg(), env)
+            return self.eval_unary[func.id()](arg, env)
 
-        arg = self.eval(ast.arg(), env)
-        closure = self.eval_closure(func, env)
-        return self.eval(closure.body, closure.extend_env(closure.param, arg))
+        #func_prime = func.func()
+        #if func_prime == AstLabel.ExprVar and func_prime.id() in operators[OP_BINARY]:
+
+        if self.is_struct(func):
+            return self.eval_struct(func, arg, env)
+
+        arg_eval = self.eval(ast.arg(), env)
+        closure_eval = self.eval_closure(func, env)
+        return self.eval(closure_eval.body, closure_eval.extend_env(closure_eval.param, arg_eval))
+
+    def eval_constructor(self, ast, _):
+        return StructValue(ast.id(),[])
+
+    def eval_struct(self, func, arg, env):
+        func_i = func
+        evaluated_args = [self.eval(arg, env)]
+        while func_i.label == AstLabel.ExprApply:
+            evaluated_args = [self.eval(func_i.arg(), env)] + evaluated_args
+            func_i = func.func()
+        return StructValue(func_i.id(), evaluated_args)
+
+    def is_struct(self, func):
+        if func == AstLabel.ExprApply:
+            return False or self.is_struct(func.func())
+        return func.label == AstLabel.ExprConstructor
 
     def eval_closure(self, ast, env):
         val = self.eval(ast, env)
         if not val.is_closure():
-            raise RuntimeError(f'Eval Error: {val} is not closure')
+            raise type_runtime_exception(Types.Closure, val)
         return val
 
     def eval_unary(self, ast, env):
@@ -115,11 +128,16 @@ class Interpreter:
 
     def eval_print_int(self, ast, env):
         number = self.eval(ast, env)
-        self.print(self.eval_number(number, env))
+        if not number.is_int():
+            raise type_runtime_exception(Types.Int, number)
+        self.print(number)
         return VoidValue()
 
     def eval_print_char(self, ast, env):
-        self.print(self.eval_char(ast, env))
+        char = self.eval(ast, env)
+        if not char.is_char():
+            raise type_runtime_exception(Types.Char, char)
+        self.print(char)
         return VoidValue()
 
     def eval_not(self, ast, env):
@@ -134,6 +152,32 @@ class Interpreter:
 
     def eval_lambda(self, ast, env):
         return ClosureValue(ast.param(), ast.expr(), env)
+
+    def eval_case(self, ast, env):
+        value = self.eval(ast.expr(), env)
+        for branch in ast.branches():
+            is_matched, env_extended = self.case_match(value, branch, env)
+            if is_matched:
+                return self.eval(branch.expr(), env_extended)
+        raise RuntimeError(f'Could not match {value}!')
+
+    def case_match(self, case_val, branch_to_match, env):
+        if case_val.is_struct():
+            return self.struct_match(case_val, branch_to_match, env)
+        return case_val.type == branch_to_match.id(), env
+
+    def struct_match(self, case_val, branch_to_match, env):
+        env_prime = env
+        match_id = case_val.constructor == branch_to_match.id()
+        match_args_len = case_val.args_len() == len(branch_to_match.params())
+        full_matched = match_id and match_args_len
+        if full_matched:
+            for i, param in enumerate(branch_to_match.params()):
+                env_prime = env_prime.extend(param, case_val.get_arg(i))
+            return full_matched, env_prime
+        return full_matched, env_prime
+
+
 
     def print(self, value):
         print(value, end='')
