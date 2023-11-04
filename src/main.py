@@ -6,6 +6,7 @@ from config import Config
 from flecha.interpreter.package import Interpreter
 from flecha.lexer import get_all_tokens, Lexer
 from flecha.parser import Parser
+from repl import REPL
 
 
 def read_input_file_or_default(filename: str, program_input_default: str) -> str:
@@ -42,27 +43,33 @@ def show_parser_ast(_ast, _show=False):
 
 
 if __name__ == "__main__":
-
-    # Init parser
-    parser = Parser()
-    parser.greet()
-
     # Get config (or arguments)
     config = Config(argparse.ArgumentParser())
 
-    # Logger
-    logger = logger.Logger(config.debug_mode)
+    if config.run_repl:
+        REPL().run()
+    else:
+        # Logger
+        logger = logger.Logger(config.debug_mode)
 
-    # Override program_input with input_file if exists file
-    program_input = read_input_file_or_default(config.program_from_file, config.program_from_str)
+        # Init parser
+        parser = Parser()
+        parser.greet()
 
-    # Optionals
-    show_program_input(program_input, config.debug_mode)
-    show_tokenize(program_input, config.tokenize_mode)
+        # Override program_input with input_file if exists file
+        program_input = read_input_file_or_default(config.program_from_file, config.program_from_str)
 
-    program_ast = parser.parse(program_input)
-    # TODO: when eval is done, then change "True" to "config.parser_mode "
-    show_parser_ast(program_ast, config.parser_mode)
+        # Optionals
+        show_program_input(program_input, config.debug_mode)
+        show_tokenize(program_input, config.tokenize_mode)
 
-    interpreter = Interpreter()
-    interpreter.eval(program_ast)
+        program_ast = parser.parse(program_input)
+        # TODO: when eval is done, then change "True" to "config.parser_mode "
+        show_parser_ast(program_ast, config.parser_mode)
+
+        interpreter = Interpreter()
+        try:
+            print(interpreter.eval(program_ast))
+        except Exception as e:
+            print(f'ERROR | {e}')
+

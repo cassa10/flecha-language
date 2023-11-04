@@ -32,16 +32,15 @@ class Interpreter:
             UNARY_MINUS: self.eval_uminus,
         }
 
-        self.eval_binary_num_bool = {
+        # Redefined op methods in IntValue classes
+        self.eval_binary_num = {
             BINARY_EQ: lambda x, y: x == y,
             BINARY_NE: lambda x, y: x != y,
             BINARY_GE: lambda x, y: x >= y,
             BINARY_LE: lambda x, y: x <= y,
             BINARY_GT: lambda x, y: x > y,
             BINARY_LT: lambda x, y: x < y,
-        }
 
-        self.eval_binary_arithmetic = {
             BINARY_ADD: lambda x, y: x + y,
             BINARY_SUB: lambda x, y: x - y,
             BINARY_MUL: lambda x, y: x * y,
@@ -89,7 +88,8 @@ class Interpreter:
         return self.eval(closure_eval.body, closure_eval.extend_env(closure_eval.param, arg_eval))
 
     def is_binary_op(self, func):
-        return func.label == AstLabel.ExprApply and func.func().label == AstLabel.ExprVar and func.func().id() in operators[OP_BINARY].values()
+        return func.label == AstLabel.ExprApply and func.func().label == AstLabel.ExprVar \
+            and func.func().id() in operators[OP_BINARY].values()
 
     def eval_constructor(self, ast, _):
         return StructValue(ast.id(),[])
@@ -124,8 +124,18 @@ class Interpreter:
         binary_op = ast.func().func().id()
         if binary_op in self.eval_binary_bool:
             return self.eval_binary_bool[binary_op](expr1, expr2, env)
-
+        if binary_op in self.eval_binary_num:
+            expr1_evaluated, expr2_evaluated = self.eval_numbers_expr_or_throw(binary_op, expr1, expr2, env)
+            return self.eval_binary_num[binary_op](expr1_evaluated, expr2_evaluated)
         raise RuntimeError(f'Invalid binary symbol: {binary_op}')
+
+    def eval_numbers_expr_or_throw(self, bin_op, expr1, expr2, env):
+        try:
+            expr1_evaluated = self.eval_number_or_throw(expr1, env)
+            expr2_evaluated = self.eval_number_or_throw(expr2, env)
+        except:
+            raise RuntimeError(f'Operation {bin_op} requires both {Types.Int} types')
+        return expr1_evaluated, expr2_evaluated
 
     def eval_var(self, ast, env):
         return self.find_in_envs(ast.id(), env)
@@ -136,10 +146,14 @@ class Interpreter:
     def eval_number(self, ast, _):
         return IntValue(ast.value)
 
-    def eval_print_int(self, ast, env):
+    def eval_number_or_throw(self, ast, env):
         number = self.eval(ast, env)
         if not number.is_int():
             raise type_runtime_exception(Types.Int, number)
+        return number
+
+    def eval_print_int(self, ast, env):
+        number = self.eval_number_or_throw(ast, env)
         self.print(number)
         return VoidValue()
 
@@ -154,7 +168,7 @@ class Interpreter:
         return BoolValue(not self.eval_bool(ast, env))
 
     def eval_uminus(self, ast, env):
-        pass
+        return -self.eval_number_or_throw(ast, env)
 
     def eval_let(self, ast, env):
         let_val = self.eval(ast.arg(), env)

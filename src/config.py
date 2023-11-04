@@ -21,14 +21,20 @@ class Config:
         self.debug_mode = args.debug
         self.program_from_str = get_or_default(args.stringProgram, '')
         self.program_from_file = get_or_default(args.inputFile, '')
+        self.output_file = get_or_default(args.outputFile, '')
+        self.run_repl = args.repl
 
     def load(self):
-        # Inputs and outputs
+
+        # TODO: Develop REPL
+        self.arg_parser.add_argument("-r", "--repl", action='store_true', help="use flecha REPL")
+
+        # Inputs
         self.arg_parser.add_argument("-s", "--stringProgram", help="some valid string program")
         self.arg_parser.add_argument("-i", "--inputFile", help="path to input file with program")
 
-        # TODO: generate output file
-        #  argParser.add_argument("-o", "--outputFile", help="path to object output file")
+        # Outputs
+        self.arg_parser.add_argument("-o", "--outputFile", help="path to object output file")
 
         # Mode Parser
         self.arg_parser.add_argument("-p", "--parse", action='store_true',

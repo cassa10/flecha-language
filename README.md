@@ -59,6 +59,15 @@ py -m pytest -v
 py ./src/main.py -h
 ```
 
+
+### Enable REPL
+
+Enables Read Evaluate Print Loop. _Note: disable all other flags_
+
+```bash
+py ./src/main.py -r
+```
+
 ### Example with flag "-s" or "--stringProgram"
 ```bash
 py ./src/main.py -s 12+234

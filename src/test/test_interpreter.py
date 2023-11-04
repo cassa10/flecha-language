@@ -6,7 +6,6 @@ from io import StringIO
 import sys
 
 interpreter_tests_loc = "tests_interpreter*"
-
 # Add test_name for create new tests of file (if file with desc index exist)
 test_names = [
     'Print Char',
@@ -28,7 +27,18 @@ test_names = [
     'Primitiva OR',
     'Primitiva AND',
     'Primitiva NOT',
-
+    'Primitiva: EQ',
+    'Primitiva: NE',
+    'Primitiva: GE',
+    'Primitiva: LE',
+    'Primitiva: GT',
+    'Primitiva: LT',
+    'Primitiva: ADD',
+    'Primitiva: SUB',
+    'Primitiva: MUL',
+    'Primitiva: DIV',
+    'Primitiva: MOD',
+    'Primitiva: UMINUS',
 ]
 
 
