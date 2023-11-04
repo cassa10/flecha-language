@@ -46,7 +46,7 @@ class Execution:
     def read_input_file_or_default(self, _filename: str, program_input_default: str) -> str:
         filename = _filename.lstrip()
         if filename == '':
-            self.logger.debug('using default program input')
+            self.logger.debug('using default program input (-s | --stringProgram)')
             return program_input_default
         try:
             with open(os.path.join(os.getcwd(), filename), 'r') as fi:
@@ -54,9 +54,8 @@ class Execution:
                 return _program_input if _program_input else program_input_default
         except Exception as e:
             self.logger.error(f"error when read file {filename} with exception {e}")
-            self.logger.debug('using default program input')
+            self.logger.debug('using default program input (-s | --stringProgram)')
             return program_input_default
-
 
     def show_tokenize(self, _program_input):
         label = 'Lexer Tokens'
