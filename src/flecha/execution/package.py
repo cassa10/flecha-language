@@ -46,6 +46,7 @@ class Execution:
     def read_input_file_or_default(self, _filename: str, program_input_default: str) -> str:
         filename = _filename.lstrip()
         if filename == '':
+            self.logger.debug('using default program input')
             return program_input_default
         try:
             with open(os.path.join(os.getcwd(), filename), 'r') as fi:
