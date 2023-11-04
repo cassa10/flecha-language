@@ -1,5 +1,4 @@
 import json
-import uuid
 from enum import Enum
 
 MAIN_DEF = 'main'
@@ -50,7 +49,7 @@ class VoidValue(Value):
         super().__init__(Types.Void)
 
     def __repr__(self):
-        return self.type
+        return ''
 
 
 class LiteralValue(Value):
