@@ -5,12 +5,17 @@ MAIN_DEF = 'main'
 UNSAFE_PRINT_INT = 'unsafePrintInt'
 UNSAFE_PRINT_CHAR = 'unsafePrintChar'
 
+BOOL_FALSE = 'False'
+BOOL_TRUE = 'True'
+BOOL_VALUES = [BOOL_FALSE, BOOL_TRUE]
+
 class Types(Enum):
     Char = "Char"
     Int = "Int"
     Struct = "Struct"
     Closure = "Closure"
     Void = "Void"
+    Bool = "Boolean"
 
 
 class Value:
@@ -26,7 +31,10 @@ class Value:
     def is_int(self):
         return False
 
-    def is_struct(self):
+    def is_struct_type(self):
+        return False
+
+    def is_bool(self):
         return False
 
 
@@ -86,5 +94,10 @@ class StructValue(Value):
     def args_len(self):
         return len(self.args)
 
-    def is_struct(self):
+    def is_struct_type(self):
         return True
+
+
+class BoolValue(StructValue):
+    def __init__(self, _bool):
+        super().__init__(BOOL_TRUE if _bool else BOOL_FALSE, [])

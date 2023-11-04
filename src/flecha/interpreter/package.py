@@ -32,7 +32,7 @@ class Interpreter:
             UNARY_MINUS: self.eval_uminus,
         }
 
-        self.eval_binary_bool = {
+        self.eval_binary_num_bool = {
             BINARY_EQ: lambda x, y: x == y,
             BINARY_NE: lambda x, y: x != y,
             BINARY_GE: lambda x, y: x >= y,
@@ -49,11 +49,10 @@ class Interpreter:
             BINARY_MOD: lambda x, y: x % y,
         }
 
-        self.eval_binary_logical = {
-            BINARY_OR: lambda x, y: self.eval_or,
-            BINARY_AND: lambda x, y: self.eval_and,
+        self.eval_binary_bool = {
+            BINARY_OR: self.eval_or,
+            BINARY_AND: self.eval_and,
         }
-
 
     def eval(self, ast: AstNode, env=LocalEnvironment()):
         try:
@@ -74,34 +73,39 @@ class Interpreter:
     def eval_apply(self, ast, env):
         func = ast.func()
         arg = ast.arg()
-        if func.label == AstLabel.ExprVar and func.id() in self.eval_unary:
+
+        is_unary_op = func.label == AstLabel.ExprVar and func.id() in self.eval_unary
+        if is_unary_op:
             return self.eval_unary[func.id()](arg, env)
 
-        #func_prime = func.func()
-        #if func_prime == AstLabel.ExprVar and func_prime.id() in operators[OP_BINARY]:
+        if self.is_binary_op(func):
+            return self.eval_binary(ast, env)
 
-        if self.is_struct(func):
-            return self.eval_struct(func, arg, env)
+        if self.is_struct(ast):
+            return self.eval_struct(ast, env)
 
         arg_eval = self.eval(ast.arg(), env)
         closure_eval = self.eval_closure(func, env)
         return self.eval(closure_eval.body, closure_eval.extend_env(closure_eval.param, arg_eval))
 
+    def is_binary_op(self, func):
+        return func.label == AstLabel.ExprApply and func.func().label == AstLabel.ExprVar and func.func().id() in operators[OP_BINARY].values()
+
     def eval_constructor(self, ast, _):
         return StructValue(ast.id(),[])
 
-    def eval_struct(self, func, arg, env):
-        func_i = func
-        evaluated_args = [self.eval(arg, env)]
+    def eval_struct(self, ast, env):
+        func_i = ast
+        evaluated_args = []
         while func_i.label == AstLabel.ExprApply:
             evaluated_args = [self.eval(func_i.arg(), env)] + evaluated_args
-            func_i = func.func()
+            func_i = func_i.func()
         return StructValue(func_i.id(), evaluated_args)
 
-    def is_struct(self, func):
-        if func == AstLabel.ExprApply:
-            return False or self.is_struct(func.func())
-        return func.label == AstLabel.ExprConstructor
+    def is_struct(self, ast):
+        if ast.label == AstLabel.ExprApply:
+            return self.is_struct(ast.func())
+        return ast.label == AstLabel.ExprConstructor
 
     def eval_closure(self, ast, env):
         val = self.eval(ast, env)
@@ -115,7 +119,13 @@ class Interpreter:
         return self.eval_unary[operation](ast.arg(), env)
 
     def eval_binary(self, ast, env):
-        pass
+        expr1 = ast.func().arg()
+        expr2 = ast.arg()
+        binary_op = ast.func().func().id()
+        if binary_op in self.eval_binary_bool:
+            return self.eval_binary_bool[binary_op](expr1, expr2, env)
+
+        raise RuntimeError(f'Invalid binary symbol: {binary_op}')
 
     def eval_var(self, ast, env):
         return self.find_in_envs(ast.id(), env)
@@ -141,7 +151,7 @@ class Interpreter:
         return VoidValue()
 
     def eval_not(self, ast, env):
-        pass
+        return BoolValue(not self.eval_bool(ast, env))
 
     def eval_uminus(self, ast, env):
         pass
@@ -162,7 +172,7 @@ class Interpreter:
         raise RuntimeError(f'Could not match {value}!')
 
     def case_match(self, case_val, branch_to_match, env):
-        if case_val.is_struct():
+        if case_val.is_struct_type():
             return self.struct_match(case_val, branch_to_match, env)
         return case_val.type == branch_to_match.id(), env
 
@@ -177,7 +187,17 @@ class Interpreter:
             return full_matched, env_prime
         return full_matched, env_prime
 
+    def eval_or(self, expr1, expr2, env):
+        return BoolValue(self.eval_bool(expr1, env) or self.eval_bool(expr2, env))
 
+    def eval_and(self, expr1, expr2, env):
+        return BoolValue(self.eval_bool(expr1, env) and self.eval_bool(expr2, env))
+
+    def eval_bool(self, expr, env):
+        value = self.eval(expr, env)
+        if not (value.is_struct_type() and value.constructor in BOOL_VALUES):
+            raise type_runtime_exception(Types.Bool, value)
+        return value.constructor == BOOL_TRUE
 
     def print(self, value):
         print(value, end='')
