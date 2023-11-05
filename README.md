@@ -59,6 +59,25 @@ py -m pytest -v
 py ./src/main.py -h
 ```
 
+### Priority
+
+Some commands has priority. 
+This means that a command which has more priority force to execute in that mode and output that mode until execution ends
+
+#### Commands with priorities:
+
+1- REPL (`-r`|`--repl`)
+2- Tokenizer Mode (`-tM`|`--repl`)
+3- Parser Mode (`-p`|`-pM`)
+
+_Note:The priority is 1 to N where less value is more priority than a greater one_
+
+Example: 
+- command `-r` will execute as REPL.
+- command `-tM` will execute as 'Tokenizer Mode' and only return all program tokens as output.
+- command `-pM` will execute as 'Parser mode' and only return an ast program as output.
+- command `-r -pM` will execute as REPL.
+- command `-pM -tM` will execute as Tokenizer Mode.
 
 ### Enable REPL
 
@@ -70,25 +89,45 @@ py ./src/main.py -r
 
 ### Example with flag "-s" or "--stringProgram"
 ```bash
-py ./src/main.py -s 12+234
+py ./src/main.py -s "def main = 12 * 234"
 ```
 
 ### Example with flag "-i" or "--inputFile"
 ```bash
-py ./src/main.py -i test/tests_parser_json/test18.input
+py ./src/main.py -i "./src/test/tests_interpreter/test18.input"
 ```
+
+_Note: need to be executed from root of repo_
+
+### Example with flag "-o" or "--outputFile"
+
+```bash
+py ./src/main.py -i "./src/test/tests_interpreter/test18.input" -o "./out/test18.input"
+```
+
+_Note: need to be executed from root of repo_
 
 ### Show tokens with flags "-t" or "--tokenize"
 ```bash
-py ./src/main.py -t -i test/tests_parser_json/test18.input
+py ./src/main.py -t -i "./src/test/tests_interpreter/test18.input"
 ```
 
-### Enable parser AST with flags "-p" or "--parse" 
+### Only tokenize and return tokens with flags "-tM" or "--tokenizeMode" 
 ```bash
-py ./src/main.py -p -i test/tests_parser_json/test18.input
+py ./src/main.py -tM -i "./src/test/tests_interpreter/test18.input"
+```
+
+### Show parsed AST with flags "-p" or "--parse" 
+```bash
+py ./src/main.py -p -i "./src/test/tests_interpreter/test18.input"
+```
+
+### Only parse and return parsed AST with flags "-pM" or "--parseMode" 
+```bash
+py ./src/main.py -pM -i "./src/test/tests_interpreter/test18.input"
 ```
 
 ### Enable debug info (such as: Program Input) with flags "-d" or "--debug" 
 ```bash
-py ./src/main.py -d -p -t -i test/tests_parser_json/test18.input
+py ./src/main.py -d -p -t -i "./src/test/tests_interpreter/test18.input"
 ```

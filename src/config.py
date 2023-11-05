@@ -16,8 +16,8 @@ class Config:
         if args.debug:
             print(f"Arguments: {args}")
 
-        self.parser_mode = args.parse
-        self.tokenize_mode = args.tokenize
+        self.show_parser_ast = args.parse
+        self.show_tokens = args.tokenize
         self.debug_mode = args.debug
         self.program_from_str = get_or_default(args.stringProgram, '')
         self.program_from_file = get_or_default(args.inputFile, '')
@@ -26,8 +26,7 @@ class Config:
 
     def load(self):
 
-        # TODO: Develop REPL
-        self.arg_parser.add_argument("-r", "--repl", action='store_true', help="use flecha REPL")
+        self.arg_parser.add_argument("-r", "--repl", action='store_true', help="use flecha REPL (Priority 1)")
 
         # Inputs
         self.arg_parser.add_argument("-s", "--stringProgram", help="some valid string program")
@@ -36,12 +35,17 @@ class Config:
         # Outputs
         self.arg_parser.add_argument("-o", "--outputFile", help="path to object output file")
 
-        # Mode Parser
-        self.arg_parser.add_argument("-p", "--parse", action='store_true',
-                                     help="Mode parser returning AST of the program input")
         # Mode Tokenizer
         self.arg_parser.add_argument("-t", "--tokenize", action='store_true',
-                                     help="Mode tokenize returning tokens of the program input")
+                                     help="Show tokenize returning tokens of the program input")
+        self.arg_parser.add_argument("-tM", "--tokenizeMode", action='store_false',
+                                     help="Mode tokenize only returning tokens of the program input (Priority 2)")
+
+        # Mode Parser
+        self.arg_parser.add_argument("-p", "--parse", action='store_true',
+                                     help="Show parser returning AST of the program input")
+        self.arg_parser.add_argument("-pM", "--parseMode", action='store_false',
+                                     help="Mode parser returning only AST of the program input (Priority 3)")
 
         # Debug
         self.arg_parser.add_argument("-d", "--debug", action='store_true',

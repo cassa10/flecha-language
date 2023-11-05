@@ -3,7 +3,6 @@ from flecha.interpreter.package import Interpreter
 from flecha.parser import Parser
 
 class REPL:
-
     def __init__(self):
         self.parser = Parser()
         self.intpr = Interpreter()

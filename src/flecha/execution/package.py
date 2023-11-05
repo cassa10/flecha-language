@@ -1,4 +1,5 @@
 import os
+import sys
 
 from typing import Callable
 import logger
@@ -15,36 +16,52 @@ class Execution:
         self.parser = Parser()
         self.intpr = Interpreter()
 
+        self.program_from_str = self.config.program_from_str
+        self.program_from_file = self.config.program_from_file.lstrip()
+        self.program_output_filename = self.config.output_file.strip()
+
         self.is_show_program_input = config.debug_mode
-        self.is_show_tokenize = config.tokenize_mode
-        self.is_parser_mode = config.parser_mode
+        self.is_show_tokenize = config.show_tokens
+        self.is_show_parser_ast = config.show_parser_ast
+
+        # TODO:
+        # Priority:
+        # self.config.
 
     def execute(self):
         self.parser.greet()
 
-        # Override program_input with input_file if exists file
-        program_input = self.read_input_file_or_default(
-            self.config.program_from_file,
-            self.config.program_from_str
-        )
+        # Get program from input_file if exists file
+        #   Otherwise get program from -s flag
+        program_input = self.get_program_input()
 
         # Optionals
         self.show_program_input(program_input)
-        self.show_tokenize(program_input)
+        self.tokenize(program_input)
         program_ast = self.parser.parse(program_input)
-
-        # TODO: Only Parser mode?? or only show??
         self.show_parser_ast(program_ast)
 
-        # TODO: Handle output param at file
+        # Eval and handle output
+        self.handle_eval_output(program_ast)
+        print('test')
 
-        try:
-            print(self.intpr.eval(program_ast))
-        except Exception as e:
-            print(f'ERROR | {e}')
+    def handle_eval_output(self, program_ast):
+        eval_lambda = lambda: self.eval_program(program_ast)
+        if self.program_output_filename == '':
+            try:
+                self.logger.debug(f"No write or generate output file because empty or invalid filename '{self.program_output_filename}'")
+                self.logger.print(eval_lambda())
+            except Exception as e:
+                self.logger.print(f'EVAL ERROR | {e}')
+        else:
+            self.write_output_file(eval_lambda)
 
-    def read_input_file_or_default(self, _filename: str, program_input_default: str) -> str:
-        filename = _filename.lstrip()
+    def eval_program(self, program_ast):
+        self.intpr.eval(program_ast)
+
+    def get_program_input(self) -> str:
+        filename = self.program_from_file
+        program_input_default = self.program_from_str
         if filename == '':
             self.logger.debug('using default program input (-s | --stringProgram)')
             return program_input_default
@@ -57,30 +74,48 @@ class Execution:
             self.logger.debug('using default program input (-s | --stringProgram)')
             return program_input_default
 
-    def show_tokenize(self, _program_input):
+    def write_output_file(self, eval_fn: Callable[[], None]):
+        filename = self.program_output_filename
+        try:
+            with open(filename, 'w') as file:
+                sys.stdout = file
+                eval_fn()
+            sys.stdout = sys.__stdout__
+        except Exception as e:
+            sys.stdout = sys.__stdout__
+            os.remove(filename)
+            self.logger.error(f"error when write output file {filename} with exception {e}")
+
+    def tokenize(self, _program_input):
         label = 'Lexer Tokens'
-        self.__logger_wrapper(
-            self.is_show_tokenize, label, label,
+        self.__log_wrapper_if(
+            self.is_show_tokenize,
+            label,
+            label,
             lambda: self.logger.print(get_all_tokens(Lexer().build(), _program_input))
         )
 
     def show_program_input(self, _program_input):
         is_empty_program = _program_input == ""
         label = 'Program Input'
-        self.__logger_wrapper(
-            self.is_show_program_input or is_empty_program, label, label,
+        self.__log_wrapper_if(
+            self.is_show_program_input or is_empty_program,
+            label,
+            label,
             lambda: self.logger.print(_program_input) if not is_empty_program else self.logger.warn('Empty program!!')
         )
 
     def show_parser_ast(self, ast):
         label = 'AST Parsed'
-        self.__logger_wrapper(
-            self.is_parser_mode, label, label,
+        self.__log_wrapper_if(
+            self.is_show_parser_ast,
+            label,
+            label,
             lambda: self.logger.print(f"{ast}")
         )
 
     # show
-    def __logger_wrapper(self, show: bool, header_str: str, footer_str: str, fn: Callable[[], None]):
+    def __log_wrapper_if(self, show: bool, header_str: str, footer_str: str, fn: Callable[[], None]):
         if show:
             self.logger.print(f"{{ {header_str} }} => \n")
             fn()
