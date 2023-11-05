@@ -24,9 +24,9 @@ class Execution:
         self.is_show_tokenize = config.show_tokens
         self.is_show_parser_ast = config.show_parser_ast
 
-        # TODO:
-        # Priority:
-        # self.config.
+        # Execute Priority
+        self.tokenizer_mode = self.config.run_tokenize_mode
+        self.parser_mode = self.config.run_parse_mode
 
     def execute(self):
         self.parser.greet()
@@ -35,26 +35,29 @@ class Execution:
         #   Otherwise get program from -s flag
         program_input = self.get_program_input()
 
-        # Optionals
         self.show_program_input(program_input)
-        self.tokenize(program_input)
+        tokens = self.tokenize(program_input)
         program_ast = self.parser.parse(program_input)
         self.show_parser_ast(program_ast)
 
-        # Eval and handle output
-        self.handle_eval_output(program_ast)
-        print('test')
+        # Priority: Tokens -> Parsed AST -> Evaluation (depend on active flag commands)
+        func = (lambda: self.logger.print(program_ast)) if self.parser_mode else \
+            (lambda: self.eval_program(program_ast))
+        func = (lambda: self.logger.print(tokens)) if self.tokenizer_mode else func
 
-    def handle_eval_output(self, program_ast):
-        eval_lambda = lambda: self.eval_program(program_ast)
+        # Eval and handle output
+        self.handle_output(program_ast, func)
+
+    def handle_output(self, program_ast, func: Callable[[], None]):
         if self.program_output_filename == '':
             try:
-                self.logger.debug(f"No write or generate output file because empty or invalid filename '{self.program_output_filename}'")
-                self.logger.print(eval_lambda())
+                self.logger.debug(
+                    f"No write or generate output file because empty or invalid filename '{self.program_output_filename}'")
+                self.logger.print(func())
             except Exception as e:
                 self.logger.print(f'EVAL ERROR | {e}')
         else:
-            self.write_output_file(eval_lambda)
+            self.write_output_file(func)
 
     def eval_program(self, program_ast):
         self.intpr.eval(program_ast)
@@ -86,14 +89,16 @@ class Execution:
             os.remove(filename)
             self.logger.error(f"error when write output file {filename} with exception {e}")
 
-    def tokenize(self, _program_input):
+    def tokenize(self, program_input):
+        tokens = get_all_tokens(Lexer().build(), program_input)
         label = 'Lexer Tokens'
         self.__log_wrapper_if(
             self.is_show_tokenize,
             label,
             label,
-            lambda: self.logger.print(get_all_tokens(Lexer().build(), _program_input))
+            lambda: self.logger.print(tokens)
         )
+        return tokens
 
     def show_program_input(self, _program_input):
         is_empty_program = _program_input == ""

@@ -16,13 +16,18 @@ class Config:
         if args.debug:
             print(f"Arguments: {args}")
 
+        self.debug_mode = args.debug
+
         self.show_parser_ast = args.parse
         self.show_tokens = args.tokenize
-        self.debug_mode = args.debug
+
         self.program_from_str = get_or_default(args.stringProgram, '')
         self.program_from_file = get_or_default(args.inputFile, '')
         self.output_file = get_or_default(args.outputFile, '')
+
         self.run_repl = args.repl
+        self.run_tokenize_mode = args.tokenizeMode
+        self.run_parse_mode = args.parseMode
 
     def load(self):
 
@@ -38,13 +43,13 @@ class Config:
         # Mode Tokenizer
         self.arg_parser.add_argument("-t", "--tokenize", action='store_true',
                                      help="Show tokenize returning tokens of the program input")
-        self.arg_parser.add_argument("-tM", "--tokenizeMode", action='store_false',
+        self.arg_parser.add_argument("-tM", "--tokenizeMode", action='store_true',
                                      help="Mode tokenize only returning tokens of the program input (Priority 2)")
 
         # Mode Parser
         self.arg_parser.add_argument("-p", "--parse", action='store_true',
                                      help="Show parser returning AST of the program input")
-        self.arg_parser.add_argument("-pM", "--parseMode", action='store_false',
+        self.arg_parser.add_argument("-pM", "--parseMode", action='store_true',
                                      help="Mode parser returning only AST of the program input (Priority 3)")
 
         # Debug
